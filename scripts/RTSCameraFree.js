@@ -74,8 +74,8 @@ function Update () {
 
     // ROTATION
     if (Input.GetMouseButton(1)) {
-        var h : float = -rotationSpeed * Input.GetAxis("Mouse X");
-        var v : float = rotationSpeed * Input.GetAxis("Mouse Y");
+        var h : float = rotationSpeed * Input.GetAxis("Mouse X");
+        var v : float = -rotationSpeed * Input.GetAxis("Mouse Y");
         transform.Rotate(0, h, 0, Space.World);
         transform.Rotate(v, 0, 0);
 
