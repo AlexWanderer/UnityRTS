@@ -18,8 +18,8 @@ public class UnitParsFree : MonoBehaviour {
 
     public GameObject target = null;
 
-    [HideInInspector] public float previousTargetDistance;
-    [HideInInspector] public int failedReachTarget = 0;
+    public float previousTargetDistance;
+    public int failedReachTarget = 0;
     public static int maxFailedReachTarget = 3;
 
     public float health = 100.0f;

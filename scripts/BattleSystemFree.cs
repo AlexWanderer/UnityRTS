@@ -52,6 +52,13 @@ public class BattleSystemFree : MonoBehaviour {
     void Update () {
     }
 
+    void OnDestroy() {
+        Debug.Log("Script destroyed!!");
+    }
+    void OnDisable() {
+        Debug.Log("Script disabled!!");
+    }
+
     // Display performance
     void OnGUI (){
         if ( displayMessage ) {
@@ -184,9 +191,12 @@ public class BattleSystemFree : MonoBehaviour {
 
                 // counting increased distances (failure to approach) between attacker and target;
                 // if counter failedR becomes bigger than critFailedR, preparing for new target search.
-                if(apprPars.previousTargetDistance < distance && ++apprPars.failedReachTarget > UnitParsFree.maxFailedReachTarget) {
-                    apprPars.setSearch();
-                    continue;
+                if(apprPars.previousTargetDistance < distance) {
+                    ++apprPars.failedReachTarget;
+                    if ( apprPars.failedReachTarget > UnitParsFree.maxFailedReachTarget) {
+                        apprPars.setSearch();
+                        continue;
+                    }
                 } else
                     apprPars.failedReachTarget = 0;
                 // saving previous R

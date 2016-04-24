@@ -35,12 +35,12 @@ public class SpawnPointFree : MonoBehaviour {
         }
 
         for(int i=0;i<numberOfObjects;i=i+1){
-            yield return new WaitForSeconds(1.0f);
+            yield return new WaitForSeconds(2.0f);
 
             for (int j = 0; j < spawnPoints.Count; ++j) {
                 GameObject cubeSpawn = (GameObject)Instantiate(box, spawnPoints[j], transform.rotation);
 
-                cubeSpawn.GetComponent<UnitParsFree>().mode = Mode.SEARCH;
+                cubeSpawn.GetComponent<UnitParsFree>().setSearch();
 
                 objTerrain.GetComponent<BattleSystemFree>().unitsBuffer.Add(cubeSpawn);
                 count = count+1;
