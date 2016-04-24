@@ -28,7 +28,7 @@ function Start() {
 
     zoomSpeed = 60.0;
 
-    minCamHeight = 65.0;
+    minCamHeight = 15.0;
     maxCamHeight = 300.0;
 }
 
@@ -70,7 +70,7 @@ function Update () {
     zoom = zoom ? ( zoom < 0 ? -1 : 1 ) : 0;
     // Only zoom if we're not on min level
     if ( zoom && (( zoom > 0 && minCamHeight < y ) || ( zoom < 0 && y < maxCamHeight )) )
-        transform.Translate((zoom * zoomSpeed) * Vector3.forward);
+        transform.Translate((zoom * zoomSpeed * Camera.main.transform.position.y / maxCamHeight) * Vector3.forward);
 
     // ROTATION
     if (Input.GetMouseButton(1)) {
