@@ -32,10 +32,9 @@ public class UnitParsFree : MonoBehaviour {
 
     [HideInInspector] public bool changeMaterial = true;
 
-    public int alliance = 1;
+    [HideInInspector] public Formation formation = null;
 
-    void Start() {
-    }
+    public int alliance = 1;
 
     void OnTriggerEnter(Collider collider) {
         var target = collider.gameObject;

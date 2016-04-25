@@ -21,7 +21,7 @@ public class BattleSystemFree : MonoBehaviour {
     private string message6 = " ";
     private bool displayMessage = true;
 
-    public List<GameObject> unitss = new List<GameObject>();
+    public List<GameObject> aliveUnits = new List<GameObject>();
     public List<GameObject> unitsBuffer = new List<GameObject>();
 
     public List<GameObject> deadUnits = new List<GameObject>();
@@ -36,11 +36,11 @@ public class BattleSystemFree : MonoBehaviour {
         objSP1.GetComponent<SpawnPointFree>().enabled = true;
         objSP2.GetComponent<SpawnPointFree>().enabled = true;
 
-        // starting to add units to main unitss array
+        // starting to add units to main aliveUnits array
         StartCoroutine(AddBuffer());
         StartCoroutine(BoolChecker());
 
-        // Starts all 6 coroutines to start searching for possible units in unitss array.
+        // Starts all 6 coroutines to start searching for possible units in aliveUnits array.
         StartCoroutine(SearchPhase());
         StartCoroutine(ApproachTargetPhase());
         StartCoroutine(AttackPhase());
@@ -48,15 +48,14 @@ public class BattleSystemFree : MonoBehaviour {
         StartCoroutine(SinkPhase());
     }
 
-    // Update is called once per frame
-    void Update () {
-    }
-
     void OnDestroy() {
         Debug.Log("Script destroyed!!");
     }
     void OnDisable() {
         Debug.Log("Script disabled!!");
+    }
+    void OnEnable() {
+        Debug.Log("Script reenabled...");
     }
 
     // Display performance
@@ -99,8 +98,8 @@ public class BattleSystemFree : MonoBehaviour {
 
             // adding back units which becomes attackable (if they get less attackers than defined by critical number)
             var searchCounter = 0;
-            for(int i = 0; i<unitss.Count; i++){
-                var unit = unitss[i];
+            for(int i = 0; i<aliveUnits.Count; i++){
+                var unit = aliveUnits[i];
                 var unitPars = unit.GetComponent<UnitParsFree>();
                 int alliance = unitPars.alliance;
 
@@ -167,8 +166,8 @@ public class BattleSystemFree : MonoBehaviour {
 
             int approachCounter = 0;
 
-            for ( int i = 0; i < unitss.Count; i++ ) {
-                GameObject appr = unitss[i];
+            for ( int i = 0; i < aliveUnits.Count; i++ ) {
+                GameObject appr = aliveUnits[i];
                 UnitParsFree apprPars = appr.GetComponent<UnitParsFree>();
 
                 if ( apprPars.mode != Mode.APPROACH ) continue;
@@ -228,9 +227,9 @@ public class BattleSystemFree : MonoBehaviour {
             int attackerCounter = 0;
             deadUnitsLocal.Clear();
 
-            // checking through main unitss array which units are set to approach (isAttacking)
-            for (int i = 0; i < unitss.Count; i++) {
-                GameObject att = unitss[i];
+            // checking through main aliveUnits array which units are set to approach (isAttacking)
+            for (int i = 0; i < aliveUnits.Count; i++) {
+                GameObject att = aliveUnits[i];
                 UnitParsFree attPars = att.GetComponent<UnitParsFree>();
 
                 if ( attPars.mode != Mode.ATTACK ) continue;
@@ -264,8 +263,8 @@ public class BattleSystemFree : MonoBehaviour {
                 if ( deadUnits.Contains(deadUnitsLocal[i]) )
                     Debug.Log("DUPLICATE!!");
                 deadUnits.Add(deadUnitsLocal[i]);
-                if ( !unitss.Remove(deadUnitsLocal[i]) )
-                    Debug.Log("Failed to removed dead unit from unitss");
+                if ( !aliveUnits.Remove(deadUnitsLocal[i]) )
+                    Debug.Log("Failed to removed dead unit from aliveUnits");
 
                 deadUnitsLocal[i].GetComponent<UnitParsFree>().setDead();
             }
@@ -297,7 +296,7 @@ public class BattleSystemFree : MonoBehaviour {
                 if ( deadPars.mode == Mode.SINK )
                     Debug.Log("SANK IN DEAD");
 
-                // If unit is dead long enough, prepare for rotting (sinking) phase and removing from the unitss list
+                // If unit is dead long enough, prepare for rotting (sinking) phase and removing from the aliveUnits list
                 if(deadPars.deathCalls > UnitParsFree.maxDeathCalls){
                     deadPars.setSinking();
                     sinkingUnits.Add(dead);
@@ -364,7 +363,7 @@ public class BattleSystemFree : MonoBehaviour {
                               performance[5] +
                               performance[6])/6.0f;
 
-            message = ("BSystem: " + (unitss.Count).ToString() + "; "
+            message = ("BSystem: " + (aliveUnits.Count).ToString() + "; "
                                  + (timeloops[0]).ToString() + "; "
                                  + (timeall[0]).ToString() + "; "
                                  + (performance[0]).ToString() + "% ");
@@ -380,11 +379,11 @@ public class BattleSystemFree : MonoBehaviour {
             Debug.Log("AddBuffer");
             int maxbuffer = unitsBuffer.Count;
             for(int i =0; i<maxbuffer; i++)
-                unitss.Add(unitsBuffer[i]);
+                aliveUnits.Add(unitsBuffer[i]);
 
             // cleaning up buffer
-            for(int i =0; i<unitss.Count; i++)
-                unitsBuffer.Remove(unitss[i]);
+            for(int i =0; i<aliveUnits.Count; i++)
+                unitsBuffer.Remove(aliveUnits[i]);
             yield return new WaitForSeconds(0.5f);
         }
     }
@@ -403,8 +402,8 @@ public class BattleSystemFree : MonoBehaviour {
 
         while(true){
             Debug.Log("ManualMover");
-            for(int i =0; i<unitss.Count; i++){
-                GameObject obj = unitss[i];
+            for(int i =0; i<aliveUnits.Count; i++){
+                GameObject obj = aliveUnits[i];
                 ManualControlFree objSel = obj.GetComponent<ManualControlFree>();
 
                 if(objSel.isMoving){

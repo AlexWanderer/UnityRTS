@@ -11,9 +11,6 @@ public class SpawnPointFree : MonoBehaviour {
 
     private GameObject objTerrain;
 
-    void Starter() {
-    }
-
     void Start () {
         StartCoroutine(MakeBox());
     }
