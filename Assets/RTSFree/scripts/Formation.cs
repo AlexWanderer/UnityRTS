@@ -46,12 +46,13 @@ public class Formation : MonoBehaviour {
             if ( units.Count == 0 ) continue;
 
             var space = 3;
+            var depth = size / 10;
 
-            units[0].GetComponent<NavMeshAgent>().speed = 1.5f;
+            units[0].GetComponent<NavMeshAgent>().speed = 2.0f;
             for (int i = 1; i < units.Count; ++i) {
                 units[i].GetComponent<NavMeshAgent>().SetDestination(units[0].transform.position
-                        + space * ((i/2) % 10) * units[0].transform.right
-                        - space * (i % 2)  * units[0].transform.forward);
+                        + space * (i % 10) * units[0].transform.right
+                        - space * ((i/10) % depth)  * units[0].transform.forward);
             }
         }
     }
