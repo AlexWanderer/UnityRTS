@@ -11,7 +11,8 @@ public class Formation : MonoBehaviour {
 
     private GameObject objTerrain;
     private int alliance = 0;
-    private int width = 0;
+    private int width = 1;
+    private int currentWidth = 1, currentDepth = 1;
 
     void Start() {
         objTerrain = GameObject.Find("Terrain");
@@ -22,7 +23,6 @@ public class Formation : MonoBehaviour {
 
     public IEnumerator PopulateFormation() {
         while (true) {
-            Debug.Log("Populating...");
             yield return new WaitForSeconds(1.0f);
             if ( units.Count >= maxSize ) continue;
 
@@ -34,8 +34,10 @@ public class Formation : MonoBehaviour {
                     units.Add(unit);
 
                     if ( units.Count == 1 ) {
+                        GetComponent<NavMeshAgent>().enabled = false;
                         transform.position = unit.transform.position;
                         transform.rotation = unit.transform.rotation;
+                        GetComponent<NavMeshAgent>().enabled = true;
                     }
 
                     unitPars.formation = this;
@@ -45,35 +47,48 @@ public class Formation : MonoBehaviour {
                     if ( units.Count == maxSize ) break;
                 }
             }
-            ComputeFormationParameters();
+            ComputeWidth();
         }
     }
 
     public IEnumerator MoveFormation() {
         while (true) {
-            Debug.Log("Moving...");
             yield return new WaitForSeconds(0.5f);
             if ( units.Count == 0 ) continue;
+            if ( false /* check if forward points are both in mesh */ ) {
+                ReconfigureFormation(currentWidth - 1);
+            } else if ( currentWidth < width ) {
+                ReconfigureFormation(currentWidth + 1);
+            }
 
             for (int i = 0; i < units.Count; ++i) {
-                units[i].GetComponent<NavMeshAgent>().SetDestination(GetFormationSlot(i));
+                if ( units[i].GetComponent<UnitParsFree>().mode < Mode.ATTACK )
+                    units[i].GetComponent<NavMeshAgent>().SetDestination(GetFormationSlot(i));
             }
         }
     }
 
-    public void ComputeFormationParameters() {
+    public void ComputeWidth() {
         // width * depth ~= units.Count
         // depth / width = depthToWidthRatio
         // depth = depthToWidthRatio * width
         // width * (depthToWidthRatio * width) ~= units.Count
         // width ^ 2 = units.Count / depthToWidthRatio
         // width = sqrt(units.Count / depthToWidthRatio)
-
+        if ( !units.Count ) return;
         float tmpWidth = Mathf.Sqrt(units.Count / depthToWidthRatio);
         width = depthToWidthRatio > 1.0 ? Mathf.CeilToInt(tmpWidth) : Mathf.FloorToInt(tmpWidth);
     }
 
+    public void ReconfigureFormation(int w) {
+        currentWidth = w;
+        currentDepth = Mathf.CeilToInt(units.Count / (float)currentWidth);
+
+        transform.localScale = new Vector3(currentWidth * unitSpacing, 1, currentDepth * unitSpacing);
+    }
+
     public Vector3 GetFormationSlot(int i) {
-        return transform.position + unitSpacing * ((i % width) * transform.right - (i / width) * transform.forward);
+        return transform.position + unitSpacing * (((i % currentWidth) - (currentWidth - 1) / 2.0f) * transform.right
+                                                   - (i / currentWidth - (currentDepth - 1) / 2.0f) * transform.forward);
     }
 }

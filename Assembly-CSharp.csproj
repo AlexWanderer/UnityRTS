@@ -6,7 +6,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{408BD311-D773-1339-176E-AC9FE8551216}</ProjectGuid>
+    <ProjectGuid>{F78562E6-7072-80C0-994A-A29F80A5B051}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -51,6 +51,7 @@
      <Compile Include="Assets\RTSFree\scripts\HeapSortFree.cs" />
      <Compile Include="Assets\RTSFree\scripts\KDTreeFree.cs" />
      <Compile Include="Assets\RTSFree\scripts\ManualControlFree.cs" />
+     <Compile Include="Assets\RTSFree\scripts\ShowMesh.cs" />
      <Compile Include="Assets\RTSFree\scripts\SpawnPointFree.cs" />
      <Compile Include="Assets\RTSFree\scripts\UnitParsFree.cs" />
  <Reference Include="UnityEngine.UI">

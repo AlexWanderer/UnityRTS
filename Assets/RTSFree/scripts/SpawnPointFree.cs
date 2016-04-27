@@ -4,10 +4,12 @@ using System.Collections.Generic;
 
 public class SpawnPointFree : MonoBehaviour {
     public GameObject box;
-    public float timestep = 0.01f;
-    public int count = 0;
-    public int numberOfObjects = 10000;
-    public float size = 1.0f;
+
+    public float timestep = 2.0f;
+    public int spawnNumber = 0;
+    public int objectsPerSpawn = 10;
+
+    public float radius = 20.0f;
 
     private GameObject objTerrain;
 
@@ -19,20 +21,24 @@ public class SpawnPointFree : MonoBehaviour {
         objTerrain = GameObject.Find("Terrain");
 
         var spawnPoints = new List<Vector3>();
-        for (int i = 0; i < 10; ++i) {
+        var counter = 0;
+        for (int i = 0; i < spawnNumber && counter < spawnNumber * 3; ++i) {
             var point = new Vector3(
-                transform.position.x+Random.Range(-size,size)+5,
+                transform.position.x+Random.Range(-radius,radius)+5,
                 transform.position.y,
-                transform.position.z+Random.Range(-size,size));
+                transform.position.z+Random.Range(-radius,radius));
+            Debug.Log(string.Format("Making point in {0}", point.ToString()));
             NavMeshHit hit;
             if ( NavMesh.SamplePosition(point, out hit, 2.0f, NavMesh.AllAreas) )
                 spawnPoints.Add(hit.position);
             else
                 i--;
+            counter++;
         }
+        Debug.Log(string.Format("Created {0} spawns..", spawnPoints.Count));
 
-        for(int i=0;i<numberOfObjects;i=i+1){
-            yield return new WaitForSeconds(2.0f);
+        for (int i = 0; i < objectsPerSpawn; ++i) {
+            yield return new WaitForSeconds(timestep);
 
             for (int j = 0; j < spawnPoints.Count; ++j) {
                 GameObject cubeSpawn = (GameObject)Instantiate(box, spawnPoints[j], transform.rotation);
@@ -40,13 +46,7 @@ public class SpawnPointFree : MonoBehaviour {
                 cubeSpawn.GetComponent<UnitParsFree>().setSearch();
 
                 objTerrain.GetComponent<BattleSystemFree>().unitsBuffer.Add(cubeSpawn);
-                count = count+1;
             }
         }
     }
-
-    // function OnGUI() {
-    //     GUI.Label(new Rect( 450,5, 30,30),"Number of objects: "+count,textStyle);
-    //     GUI.Label(new Rect( 450,15, 30,30),"FPS: "+lastFPS,textStyle);
-    // }
 }

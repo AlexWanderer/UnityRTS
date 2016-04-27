@@ -88,7 +88,6 @@ public class BattleSystemFree : MonoBehaviour {
         }
 
         while(true) {
-            Debug.Log("Search1");
             timeBegin = Time.realtimeSinceStartup;
 
             for (int i = 0; i < attackers.Length; i++) {
@@ -119,14 +118,11 @@ public class BattleSystemFree : MonoBehaviour {
             }
 
             var kdTrees = new List<KDTreeFree>();
-            Debug.Log("Before KDMake");
             for (int i = 0; i < attackers.Length; i++)
                 kdTrees.Add(KDTreeFree.MakeFromPoints(defenderPoints[i]));
 
             timeEnd = Time.realtimeSinceStartup;
-            Debug.Log("Yield");
             yield return new WaitForSeconds(0.5f);
-            Debug.Log("Search2");
             timeloops[1] = timeEnd - timeBegin;
             timeBegin = Time.realtimeSinceStartup;
 
@@ -161,7 +157,6 @@ public class BattleSystemFree : MonoBehaviour {
         float timeBegin, timeEnd;
 
         while(true){
-            Debug.Log("Approach");
             timeBegin = Time.realtimeSinceStartup;
 
             int approachCounter = 0;
@@ -221,7 +216,6 @@ public class BattleSystemFree : MonoBehaviour {
         var deadUnitsLocal = new List<GameObject>();
 
         while (true) {
-            Debug.Log("Attack");
             timeBegin = Time.realtimeSinceStartup;
 
             int attackerCounter = 0;
@@ -248,23 +242,14 @@ public class BattleSystemFree : MonoBehaviour {
                     targPars.health -= 20f * Random.value;
 
                     if (targPars.health < 0.0f) {
-                        if ( targPars.mode >= Mode.DEAD )
-                            Debug.Log("PRE-TWO-DEAD!!");
-                        if ( deadUnitsLocal.Contains(targ) )
-                            Debug.Log("PRE-DUPLICATE!!");
-                        if ( deadUnits.Contains(targ) )
-                            Debug.Log(string.Format("DEAD IN UNITS MAN, state is: {0}", targPars.mode.ToString()));
                         targPars.mode = Mode.DEAD;
                         deadUnitsLocal.Add(targ);
                     }
                 }
             }
             for (int i = 0; i < deadUnitsLocal.Count; ++i) {
-                if ( deadUnits.Contains(deadUnitsLocal[i]) )
-                    Debug.Log("DUPLICATE!!");
                 deadUnits.Add(deadUnitsLocal[i]);
-                if ( !aliveUnits.Remove(deadUnitsLocal[i]) )
-                    Debug.Log("Failed to removed dead unit from aliveUnits");
+                aliveUnits.Remove(deadUnitsLocal[i]);
 
                 deadUnitsLocal[i].GetComponent<UnitParsFree>().setDead();
             }
@@ -285,16 +270,12 @@ public class BattleSystemFree : MonoBehaviour {
         float timeBegin, timeEnd;
 
         while(true){
-            Debug.Log("Death");
             timeBegin = Time.realtimeSinceStartup;
 
             // Getting dying units
             for(int i = 0; i < deadUnits.Count; i++){
                 GameObject dead = deadUnits[i];
                 UnitParsFree deadPars = dead.GetComponent<UnitParsFree>();
-
-                if ( deadPars.mode == Mode.SINK )
-                    Debug.Log("SANK IN DEAD");
 
                 // If unit is dead long enough, prepare for rotting (sinking) phase and removing from the aliveUnits list
                 if(deadPars.deathCalls > UnitParsFree.maxDeathCalls){
@@ -321,7 +302,6 @@ public class BattleSystemFree : MonoBehaviour {
         float timeBegin, timeEnd;
 
         while(true){
-            Debug.Log("Sink");
             timeBegin = Time.realtimeSinceStartup;
             for (int i = 0; i < sinkingUnits.Count; i++){
                 GameObject sink = sinkingUnits[i];
@@ -351,7 +331,6 @@ public class BattleSystemFree : MonoBehaviour {
     // additional conditions check to set bool values
     public IEnumerator BoolChecker() {
         while (true) {
-            Debug.Log("BoolChecker");
             // total performance calculation from Battle System
             timeloops[0] = timeloops[1] + timeloops[2] + timeloops[3] + timeloops[4] + timeloops[5] + timeloops[6];
             timeall[0] = timeall[1] + timeall[2] + timeall[3] + timeall[4] + timeall[5] + timeall[6];
@@ -376,7 +355,6 @@ public class BattleSystemFree : MonoBehaviour {
     // units, which are wanted to be used on BSystem should be placed to unitsBuffer array first
     public IEnumerator AddBuffer() {
         while (true) {
-            Debug.Log("AddBuffer");
             int maxbuffer = unitsBuffer.Count;
             for(int i =0; i<maxbuffer; i++)
                 aliveUnits.Add(unitsBuffer[i]);
@@ -386,79 +364,5 @@ public class BattleSystemFree : MonoBehaviour {
                 unitsBuffer.Remove(aliveUnits[i]);
             yield return new WaitForSeconds(0.5f);
         }
-    }
-
-    // ManualMover controls unit if it is selected and target is defined by player
-    public IEnumerator ManualMover() {
-        float r;
-
-        float ax;
-        float ay;
-        float az;
-
-        float tx;
-        float ty;
-        float tz;
-
-        while(true){
-            Debug.Log("ManualMover");
-            for(int i =0; i<aliveUnits.Count; i++){
-                GameObject obj = aliveUnits[i];
-                ManualControlFree objSel = obj.GetComponent<ManualControlFree>();
-
-                if(objSel.isMoving){
-                    ax = obj.transform.position.x;
-                    ay = obj.transform.position.y;
-                    az = obj.transform.position.z;
-
-                    tx = objSel.manualDestination.x;
-                    ty = objSel.manualDestination.y;
-                    tz = objSel.manualDestination.z;
-
-                    r = Mathf.Sqrt((tx-ax)*(tx-ax)+(ty-ay)*(ty-ay)+(tz-az)*(tz-az));
-
-                    if(r >= objSel.prevDist){
-                        objSel.failedDist = objSel.failedDist+1;
-                        if(objSel.failedDist > objSel.critFailedDist){
-                            objSel.failedDist = 0;
-                            objSel.isMoving = false;
-                            ResetSearching(obj);
-                        }
-                    }
-                    objSel.prevDist = r;
-                }
-                if(objSel.prepareMoving){
-                    UnSetSearching(obj);
-
-                    objSel.prepareMoving = false;
-                    objSel.isMoving = true;
-
-                    obj.GetComponent<NavMeshAgent>().SetDestination(objSel.manualDestination);
-                }
-            }
-            yield return new WaitForSeconds(0.5f);
-        }
-    }
-
-    // single action functions
-    public void AddUnit(GameObject go) {
-        unitsBuffer.Add(go);
-    }
-
-    public void ResetSearching(GameObject go) {
-        UnitParsFree goPars = go.GetComponent<UnitParsFree>();
-        goPars.setSearch();
-    }
-
-    public void UnSetSearching(GameObject go) {
-        UnitParsFree goPars = go.GetComponent<UnitParsFree>();
-
-        goPars.mode = Mode.NONE;
-        goPars.target = null;
-
-        go.GetComponent<NavMeshAgent>().SetDestination(go.transform.position);
-
-        if(goPars.changeMaterial)
-            go.GetComponent<Renderer>().material.color = Color.grey;
     }
 }
